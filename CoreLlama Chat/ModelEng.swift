@@ -1,10 +1,3 @@
-//
-//  ModelEng.swift
-//  Don-Quixote
-//
-//  Created by 하늘 on 10/19/24.
-//
-
 import Foundation
 import CryptoKit
 import CoreML

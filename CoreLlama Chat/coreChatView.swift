@@ -1,10 +1,3 @@
-//
-//  coreChatView.swift
-//  Don-Quixote
-//
-//  Created by 하늘 on 10/18/24.
-//
-
 import SwiftUI
 import SwiftData
 import CryptoKit
@@ -98,6 +91,7 @@ struct CoreChatView: View {
                         if isGenerating {
                             isGenerating = false
                         } else {
+                            print("Sending message...")
                             sendMessage()
                         }
                     }) {
@@ -139,17 +133,8 @@ struct CoreChatView: View {
     
     private func sendMessage() {
         if text.isEmpty { return }
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy.MMM.dd | HH:mm:ss"
-//        let currentDate = dateFormatter.string(from: Date())
-//        Current Date: \(currentDate)
-        let result = """
-<|begin_of_text|><|start_header_id|>system<|end_header_id|>
+        let result = "<|begin_of_text|><|start_header_id|>system<|end_header_id|>\n\n\(sysPrompt)<|eot_id|>" + "<|start_header_id|>user<|end_header_id|>\n\n\(text)<|eot_id|>" + "<|start_header_id|>assistant<|end_header_id|>\n\n"
 
-\(sysPrompt)<|eot_id|><|start_header_id|>user<|end_header_id|>
-
-\(text)<|eot_id|><|start_header_id|>assistant<|end_header_id|>
-"""
         
         guard let tokenizer = tok else { return }
         let (a, t) = tokenizer.encode(result)
@@ -167,7 +152,7 @@ struct CoreChatView: View {
             guard let llm = llm else { return }
             isGenerating = true
             var responseText = ""
-            let tokens = await llm.openLoop(tokens: t, open_func: { int_array in
+            _ = await llm.openLoop(tokens: t, open_func: { int_array in
                 let output = tokenizer.decode(int_array).trimmingCharacters(in: .whitespacesAndNewlines)
                 
                 // 배열에서 인덱스를 찾아 직접 메시지를 수정
@@ -177,21 +162,6 @@ struct CoreChatView: View {
                 }
                 return get_Gen()
             })
-            
-            let calendarActions = extractCalendarActions(from: tokenizer.decode(tokens).trimmingCharacters(in: .whitespacesAndNewlines)
-            )
-            
-            let formatter = DateFormatter()
-            formatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
-
-            // Print the extracted calendar actions
-            for action in calendarActions {
-                let dateFormatter = DateFormatter()
-                dateFormatter.dateStyle = .medium
-                dateFormatter.timeStyle = .short
-                print("이벤트: \(action.title), 시작 날짜: \(formatter.string(from: action.sdate)), 종료 날짜: \(formatter.string(from: action.edate))")
-            }
-
             isGenerating = false
         }
     }

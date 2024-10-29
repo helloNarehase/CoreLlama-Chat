@@ -1,10 +1,3 @@
-//
-//  SystemEdit.swift
-//  Don_Quixote
-//
-//  Created by 하늘 on 10/22/24.
-//
-
 import SwiftUI
 
 struct SystemEdit: View {
